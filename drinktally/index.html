@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drink Tally</title>
+<meta name="description" content="Drink Tally note la commande du groupe avant que tu ailles chercher les boissons. Hors ligne, sans compte, sans publicité.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f0efec;
+  --surface:#ffffff;
+  --surface-2:#f7f6f3;
+  --text:#191713;
+  --muted:#5f594f;
+  --faint:#8d8579;
+  --border:#dedad2;
+  --border-strong:#c8c2b7;
+  --accent:#9a5f10;
+  --accent-ink:#ffffff;
+  --wine:#6f2436;
+  --shadow:0 1px 2px rgba(25,23,19,.05), 0 12px 32px -22px rgba(25,23,19,.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131211;
+    --surface:#1c1a18;
+    --surface-2:#232120;
+    --text:#eceae6;
+    --muted:#a49d92;
+    --faint:#7d766c;
+    --border:#2e2b28;
+    --border-strong:#413d38;
+    --accent:#e0a145;
+    --accent-ink:#1c1a18;
+    --wine:#c9788a;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -22px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131211;
+  --surface:#1c1a18;
+  --surface-2:#232120;
+  --text:#eceae6;
+  --muted:#a49d92;
+  --faint:#7d766c;
+  --border:#2e2b28;
+  --border-strong:#413d38;
+  --accent:#e0a145;
+  --accent-ink:#1c1a18;
+  --wine:#c9788a;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -22px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  font-size:17px;line-height:1.65;
+}
+.page{max-width:680px;margin:0 auto;padding:0 22px 72px}
+
+/* top bar */
+.top{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:20px 0 0;
+}
+.brand{
+  font-family:"Familjen Grotesk",sans-serif;font-weight:700;
+  font-size:16px;letter-spacing:-.01em;
+}
+.switch{display:flex;gap:1px;background:var(--border);border-radius:6px;padding:1px}
+.switch button{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;
+  background:var(--surface-2);color:var(--muted);border:0;
+  padding:6px 11px;cursor:pointer;border-radius:5px;
+}
+.switch button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.switch button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* hero */
+h1{
+  font-family:"Familjen Grotesk",sans-serif;font-weight:700;
+  font-size:clamp(31px,6.2vw,45px);line-height:1.06;letter-spacing:-.025em;
+  margin:48px 0 18px;text-wrap:balance;
+}
+.pitch{font-size:19px;color:var(--muted);margin:0 0 34px;max-width:52ch}
+
+/* captures d'ecran */
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:0 0 44px}
+figure{margin:0}
+figure img{
+  display:block;width:100%;height:auto;
+  border-radius:14px;border:1px solid var(--border-strong);
+  box-shadow:var(--shadow);background:#171416;
+}
+figcaption{
+  display:flex;gap:9px;align-items:baseline;
+  font-size:14px;color:var(--muted);margin-top:12px;line-height:1.45;
+}
+figcaption .step{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+  color:var(--accent);font-weight:500;flex:none;
+}
+@media (max-width:540px){
+  .shots{grid-template-columns:1fr;gap:30px;max-width:320px;margin-inline:auto}
+}
+
+/* bouton store */
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:0 0 12px}
+a.store{
+  display:inline-block;
+  font-family:"Familjen Grotesk",sans-serif;font-weight:600;font-size:16px;
+  background:var(--accent);color:var(--accent-ink);
+  text-decoration:none;padding:12px 24px;border-radius:8px;
+}
+a.store:hover{filter:brightness(1.08)}
+a.store:focus-visible{outline:2px solid var(--text);outline-offset:3px}
+span.soon{
+  font-family:"Familjen Grotesk",sans-serif;font-weight:600;font-size:16px;
+  border:1px dashed var(--border-strong);color:var(--muted);
+  padding:12px 24px;border-radius:8px;display:inline-block;
+}
+.price{font-size:14px;color:var(--faint)}
+
+/* sections */
+h2{
+  font-family:"Familjen Grotesk",sans-serif;font-weight:600;
+  font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);margin:52px 0 16px;
+}
+p{margin:0 0 16px;max-width:62ch}
+ul{margin:0 0 16px;padding-left:0;list-style:none;max-width:62ch}
+li{padding-left:22px;position:relative;margin-bottom:9px}
+li::before{
+  content:"";position:absolute;left:4px;top:.72em;
+  width:6px;height:6px;border-radius:50%;background:var(--accent);
+}
+li b{font-weight:600}
+
+.premium{border-left:3px solid var(--wine);padding:2px 0 2px 20px;margin:0 0 16px}
+.premium p:last-child{margin-bottom:0}
+
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+footer{
+  margin-top:56px;padding-top:22px;border-top:1px solid var(--border);
+  font-size:14px;color:var(--faint);
+  display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;
+}
+footer .sep{flex:1}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="top">
+    <span class="brand">Drink&nbsp;Tally</span>
+    <div class="switch">
+      <button type="button" id="btn-fr" aria-pressed="true">FR</button>
+      <button type="button" id="btn-en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+
+  <!-- ================= FRANCAIS ================= -->
+  <main id="fr">
+    <h1>Prise de commande rapide entre amis, et sans oubli.</h1>
+    <p class="pitch">Tes amis te commandent leur boisson tous en même temps. À peine arrivé au comptoir, tu en as déjà oublié la moitié. Drink Tally note la commande à ta place, en quelques appuis.</p>
+
+    <div class="shots">
+      <figure>
+        <img src="capture-commande-saisie.png" width="520" height="1025" alt="Écran principal de Drink Tally : une grille de boissons, celles déjà commandées portent un compteur.">
+        <figcaption><span class="step">1</span><span>On te donne la commande, tu appuies. Une tuile par boisson, un compteur qui monte.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="capture-commande-liste.png" width="520" height="1025" alt="Écran « À commander » de Drink Tally : la liste récapitulative avec les quantités et des cases à cocher.">
+        <figcaption><span class="step">2</span><span>Au comptoir, tu lis la liste et tu coches ce qui est servi.</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="cta">
+      <a class="store" href="#" id="store-fr">Télécharger sur Google&nbsp;Play</a>
+      <span class="soon" id="soon-fr" hidden>Bientôt sur Google&nbsp;Play</span>
+      <span class="price">Gratuit · Sans publicité · Hors ligne</span>
+    </div>
+
+    <h2>Prendre la commande</h2>
+    <ul>
+      <li><b>Un appui, une boisson.</b> Le tour de table se note en quelques secondes, sans quitter des yeux celui qui parle. Un appui long pour corriger.</li>
+      <li><b>La liste « À commander »</b> regroupe tout par boisson, prête à être lue au barman ou au serveur.</li>
+      <li><b>Des cases à cocher</b> pour suivre ce qui est déjà servi quand la commande arrive par vagues.</li>
+      <li><b>Un catalogue à toi.</b> Noms, icônes, ordre d'affichage : tes habitudes tombent sous le pouce.</li>
+      <li><b>Remise à zéro</b> en deux gestes, et la tournée suivante peut commencer.</li>
+    </ul>
+
+    <h2>Quand ça sert</h2>
+    <p>La tournée du pub, le café de dix heures pour tout l'open space, la commande de la table en terrasse, l'apéro entre voisins. Partout où une personne va chercher les boissons de plusieurs autres — debout, dans le bruit, sans réseau.</p>
+
+    <h2>Ce que l'application ne fait pas</h2>
+    <p>Drink Tally fonctionne entièrement hors ligne. Aucun compte à créer, rien d'envoyé sur internet, aucun traceur, aucune publicité. Les prénoms que tu saisis ne quittent jamais ton téléphone.</p>
+    <p>Le détail complet est dans les <a href="privacy.html">règles de confidentialité</a>.</p>
+
+    <h2>Langues</h2>
+    <p>Français, anglais, néerlandais, espagnol, allemand et italien. L'application suit la langue du téléphone, ou celle que tu choisis dans les paramètres.</p>
+
+    <h2>Premium</h2>
+    <div class="premium">
+      <p>Tout ce qui précède est gratuit. Pour 3,99&nbsp;€ en achat unique — définitif, sans abonnement — s'ajoutent les <b>prénoms</b>, qui te disent à qui rendre quel verre en revenant à la table&nbsp;; les <b>listes multiples</b>, une pour le bar, une pour les cafés du bureau, une pour les desserts&nbsp;; et les <b>photos</b>, pour remplacer les icônes par tes propres images.</p>
+    </div>
+
+    <h2>Une question&nbsp;?</h2>
+    <p>Écris à <a href="mailto:serapps.studio@gmail.com">serapps.studio@gmail.com</a>. Les retours sont lus, et souvent suivis d'effet.</p>
+
+    <footer>
+      <span>Drink Tally — une application SerApps</span>
+      <span class="sep"></span>
+      <a href="privacy.html">Confidentialité</a>
+      <a href="mailto:serapps.studio@gmail.com">Contact</a>
+    </footer>
+  </main>
+
+  <!-- ================= ENGLISH ================= -->
+  <main id="en" hidden>
+    <h1>Take the round's order fast, and forget nothing.</h1>
+    <p class="pitch">Your friends all call out their drink at once. By the time you reach the counter, half of it is gone. Drink Tally takes the order for you, in a few taps.</p>
+
+    <div class="shots">
+      <figure>
+        <img src="capture-commande-saisie.png" width="520" height="1025" alt="Drink Tally main screen: a grid of drinks, the ones already ordered carry a counter.">
+        <figcaption><span class="step">1</span><span>People call out their drink, you tap. One tile per drink, a counter that climbs.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="capture-commande-liste.png" width="520" height="1025" alt="Drink Tally order screen: the summary list with quantities and checkboxes.">
+        <figcaption><span class="step">2</span><span>At the counter you read the list out, and tick off what has been served.</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="cta">
+      <a class="store" href="#" id="store-en">Get it on Google&nbsp;Play</a>
+      <span class="soon" id="soon-en" hidden>Coming soon to Google&nbsp;Play</span>
+      <span class="price">Free · No ads · Works offline</span>
+    </div>
+
+    <h2>Taking the order</h2>
+    <ul>
+      <li><b>One tap, one drink.</b> Go round the table in seconds without looking away from whoever is talking. Long press to correct.</li>
+      <li><b>The order list</b> groups everything by drink, ready to read out to the barman or the waiter.</li>
+      <li><b>Checkboxes</b> to keep track of what has already been served when the order arrives in waves.</li>
+      <li><b>A catalogue of your own.</b> Names, icons, display order — your regulars sit under your thumb.</li>
+      <li><b>Reset</b> in two gestures, and the next round can start.</li>
+    </ul>
+
+    <h2>When it helps</h2>
+    <p>The pub round, the ten o'clock coffee run for the whole floor, the table's order on a terrace, drinks with the neighbours. Anywhere one person fetches drinks for several others — standing up, in a noisy room, with no signal.</p>
+
+    <h2>What the app does not do</h2>
+    <p>Drink Tally works entirely offline. No account to create, nothing sent over the internet, no trackers, no ads. The names you enter never leave your phone.</p>
+    <p>The full detail is in the <a href="privacy.html">privacy policy</a>.</p>
+
+    <h2>Languages</h2>
+    <p>English, French, Dutch, Spanish, German and Italian. The app follows your phone's language, or the one you pick in the settings.</p>
+
+    <h2>Premium</h2>
+    <div class="premium">
+      <p>Everything above is free. For €3.99 as a one-time purchase — for good, no subscription — you also get <b>names</b>, so you know whose glass is whose when you get back to the table; <b>multiple lists</b>, one for the bar, one for the office coffee run, one for desserts; and <b>photos</b>, to replace the icons with your own pictures.</p>
+    </div>
+
+    <h2>Questions?</h2>
+    <p>Write to <a href="mailto:serapps.studio@gmail.com">serapps.studio@gmail.com</a>. Feedback gets read, and often acted on.</p>
+
+    <footer>
+      <span>Drink Tally — a SerApps application</span>
+      <span class="sep"></span>
+      <a href="privacy.html">Privacy</a>
+      <a href="mailto:serapps.studio@gmail.com">Contact</a>
+    </footer>
+  </main>
+
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Quand l'application sera publiée, colle son adresse Play Store ici,
+   entre les guillemets. Tant que la chaîne est vide, la page affiche
+   « Bientôt sur Google Play » au lieu du bouton.
+
+   Elle ressemblera à :
+   https://play.google.com/store/apps/details?id=com.serapps.drinktally
+------------------------------------------------------------------ */
+const PLAY_URL = "";
+
+["fr","en"].forEach(function(code){
+  var link = document.getElementById("store-" + code);
+  var soon = document.getElementById("soon-" + code);
+  if (PLAY_URL) { link.href = PLAY_URL; } else { link.hidden = true; soon.hidden = false; }
+});
+
+var fr = document.getElementById("fr");
+var en = document.getElementById("en");
+var bFr = document.getElementById("btn-fr");
+var bEn = document.getElementById("btn-en");
+
+function show(lang){
+  var isFr = lang === "fr";
+  fr.hidden = !isFr;
+  en.hidden = isFr;
+  bFr.setAttribute("aria-pressed", String(isFr));
+  bEn.setAttribute("aria-pressed", String(!isFr));
+  document.documentElement.lang = lang;
+}
+
+bFr.addEventListener("click", function(){ show("fr"); });
+bEn.addEventListener("click", function(){ show("en"); });
+
+if ((navigator.language || "fr").slice(0,2).toLowerCase() !== "fr") { show("en"); }
+</script>
+
+</body>
+</html>
